@@ -19,6 +19,7 @@
 
 #include "kmp_config.h"
 
+
 /* #define BUILD_PARALLEL_ORDERED 1 */
 
 /* This fix replaces gettimeofday with clock_gettime for better scalability on
@@ -67,6 +68,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
+#include <time.h>
 /* include <ctype.h> don't use; problems with /MD on Windows* OS NT due to bad
    Microsoft library. Some macros provided below to replace these functions  */
 #ifndef __ABSOFT_WIN
@@ -223,6 +226,7 @@ typedef struct ident {
 /*!
 @}
 */
+
 
 // Some forward declarations.
 typedef union kmp_team kmp_team_t;
@@ -3808,5 +3812,18 @@ KMP_EXPORT void KMPC_CONVENTION kmpc_set_disp_num_buffers(int);
 #ifdef __cplusplus
 }
 #endif
+
+/*=================Add by haomeng==============*/
+extern int hm_task_count;// The number of created tasks
+
+struct hm_task_time{ 
+  kmp_int64 startTime; 
+  kmp_int64 endTime; 
+  kmp_int64 threadId;
+  kmp_int32 taskId;
+};
+
+//extern std::vector<hm_task_time*> hm_task_times;
+/*=================End=========================*/
 
 #endif /* KMP_H */

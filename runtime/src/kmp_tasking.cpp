@@ -25,6 +25,11 @@
 
 #include "tsan_annotations.h"
 
+/*====================Add by haomeng*/
+int hm_task_count = 0;
+//std::vector<struct hm_task_time*> hm_task_times(10,0);
+/*====================End*/
+
 /* forward declaration */
 static void __kmp_enable_tasking(kmp_task_team_t *task_team,
                                  kmp_info_t *this_thr);
@@ -1157,6 +1162,10 @@ kmp_task_t *__kmpc_omp_task_alloc(ident_t *loc_ref, kmp_int32 gtid,
 
   KA_TRACE(20, ("__kmpc_omp_task_alloc(exit): T#%d retval %p\n", gtid, retval));
 
+  /*Add by haomeng*/
+  hm_task_count++;
+  fprintf(stderr,"============Current task count is %d\n",hm_task_count);
+
   return retval;
 }
 
@@ -1287,7 +1296,18 @@ static void __kmp_invoke_task(kmp_int32 gtid, kmp_task_t *task,
     } else
 #endif /* KMP_GOMP_COMPAT */
     {
+  /*=================Add by haomeng*/
+  clock_t cbegin = clock();
+  /*=================End*/
       (*(task->routine))(gtid, task);
+  /*=================Add by haomeng*/
+  clock_t cend = clock();
+  //struct hm_task_time newTask = {cbegin,cend,gtid,new_taskdata->td_task_id};
+  //hm_task_times.push_back(&newTask);
+  //fprintf(stderr,"===========%d, %d, %d, %d\n", newTask.startTime, newTask.endTime, newTask.threadId, newTask.taskId);
+  kmp_taskdata_t *mytaskdata = KMP_TASK_TO_TASKDATA(task);
+  fprintf(stderr,"===========%d, %d, %d, %d\n", cbegin, cend, gtid, mytaskdata->td_task_id);
+  /*=================End*/
     }
     KMP_POP_PARTITIONED_TIMER();
 
@@ -1435,6 +1455,7 @@ kmp_int32 __kmp_omp_task(kmp_int32 gtid, kmp_task_t *new_task,
 //    resumed later.
 kmp_int32 __kmpc_omp_task(ident_t *loc_ref, kmp_int32 gtid,
                           kmp_task_t *new_task) {
+
   kmp_int32 res;
   KMP_SET_THREAD_STATE_BLOCK(EXPLICIT_TASK);
 
@@ -1449,6 +1470,8 @@ kmp_int32 __kmpc_omp_task(ident_t *loc_ref, kmp_int32 gtid,
   KA_TRACE(10, ("__kmpc_omp_task(exit): T#%d returning "
                 "TASK_CURRENT_NOT_QUEUED: loc=%p task=%p\n",
                 gtid, loc_ref, new_taskdata));
+
+
   return res;
 }
 
@@ -2214,6 +2237,7 @@ static inline int __kmp_execute_tasks_template(
         __kmp_itt_task_starting(itt_sync_obj);
       }
 #endif /* USE_ITT_BUILD && USE_ITT_NOTIFY */
+
       __kmp_invoke_task(gtid, task, current_task);
 #if USE_ITT_BUILD
       if (itt_sync_obj != NULL)
@@ -3349,10 +3373,13 @@ void __kmp_taskloop_linear(ident_t *loc, int gtid, kmp_task_t *task,
     __kmp_omp_task(gtid, next_task, true); // schedule new task
     lower = upper + st; // adjust lower bound for the next iteration
   }
+
+
   // free the pattern task and exit
   __kmp_task_start(gtid, task, current_task); // make internal bookkeeping
   // do not execute the pattern task, just do internal bookkeeping
   __kmp_task_finish(gtid, task, current_task);
+
 }
 
 // Structure to keep taskloop parameters for auxiliary task

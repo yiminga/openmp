@@ -5994,6 +5994,10 @@ static void __kmp_internal_end(void) {
 }
 
 void __kmp_internal_end_library(int gtid_req) {
+  /*===========Add by haomeng===========*/
+  fprintf(stderr,"==================The number of tasks is %d\n",hm_task_count);
+  /*End*/
+
   /* if we have already cleaned up, don't try again, it wouldn't be pretty */
   /* this shouldn't be a race condition because __kmp_internal_end() is the
      only place to clear __kmp_serial_init */
@@ -6096,6 +6100,7 @@ void __kmp_internal_end_library(int gtid_req) {
 #endif
 
   __kmp_fini_allocator();
+
 
 } // __kmp_internal_end_library
 

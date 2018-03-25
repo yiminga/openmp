@@ -40,6 +40,7 @@
  * it will be implicitly called by attempts to use other library functions.
  */
 void __kmpc_begin(ident_t *loc, kmp_int32 flags) {
+	fprintf(stderr, "----------------------");
   // By default __kmpc_begin() is no-op.
   char *env;
   if ((env = getenv("KMP_INITIAL_THREAD_BIND")) != NULL &&

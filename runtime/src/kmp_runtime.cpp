@@ -5733,10 +5733,12 @@ void __kmp_internal_end_fini(void) { __kmp_internal_end_atexit();
   //fprintf(stderr,"==================Based time: %lld\n",baseTime);
   FILE *fp=NULL;
   fp=fopen("task.txt", "w");
-  //fprintf(stderr,"==================The number of tasks is %d\n",hm_task_count);
-  for(int i=0;i<1000;i++)
+  fprintf(stderr,"==================The number of tasks is %d\n",hm_task_count);
+  for(int i=0;i<MAX_THREADS;i++)
   {
-  	//fprintf(stderr,"==================Thread %d has  %d tasks\n",i,indexTask[i]);
+	if(indexTask[i]<=0)
+		continue;
+  	fprintf(stderr,"==================Thread %d has  %d tasks\n",i,indexTask[i]);
 	for(int j=0;j<indexTask[i];j++){
 		struct hm_task_time* tmp =  newTaskset[i][j];
 		if(tmp != NULL)

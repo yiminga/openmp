@@ -27,11 +27,11 @@
 
 /*====================Add by haomeng*/
 int hm_task_count = 0;
-int indexTask[1000];
+int indexTask[MAX_THREADS];
  /*=================Add by yiming*/
 //std::vector<struct hm_task_time*> newTaskset;
 //std::vector<struct hm_task_time*> hm_task_times(10,0);
-struct hm_task_time* newTaskset[1000][100000];
+struct hm_task_time* newTaskset[MAX_THREADS][MAX_TASKS];
 /*====================End*/
 
 /* forward declaration */

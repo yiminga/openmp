@@ -64,6 +64,8 @@ char const __kmp_version_lock[] =
 #define KMP_MIN(x, y) ((x) < (y) ? (x) : (y))
 
 /* ------------------------------------------------------------------------ */
+/*==================add by haomeng*/
+/*==================end*/
 
 kmp_info_t __kmp_monitor;
 
@@ -5726,7 +5728,30 @@ __attribute__((destructor)) void __kmp_internal_end_dtor(void) {
   __kmp_internal_end_atexit();
 }
 
-void __kmp_internal_end_fini(void) { __kmp_internal_end_atexit(); }
+void __kmp_internal_end_fini(void) { __kmp_internal_end_atexit(); 
+  /*===========Add by haomeng===========*/
+  //fprintf(stderr,"==================Based time: %lld\n",baseTime);
+  FILE *fp=NULL;
+  fp=fopen("task.txt", "w");
+  //fprintf(stderr,"==================The number of tasks is %d\n",hm_task_count);
+  for(int i=0;i<1000;i++)
+  {
+  	//fprintf(stderr,"==================Thread %d has  %d tasks\n",i,indexTask[i]);
+	for(int j=0;j<indexTask[i];j++){
+		struct hm_task_time* tmp =  newTaskset[i][j];
+		if(tmp != NULL)
+		{
+			//fprintf(stderr,"%lld, %lld, %lld, %lld, %lld, %lld\n", tmp->endTime - tmp->durTime, tmp->endTime, tmp->durTime,tmp->threadId, tmp->taskId,tmp->index);
+			fprintf(fp,"%lld, %lld, %lld, %lld, %lld, %lld\n", tmp->endTime - tmp->durTime - baseTime, tmp->endTime - baseTime, tmp->durTime,tmp->threadId, tmp->taskId,tmp->index);
+			free(tmp);
+		}
+	}
+  }
+  fclose(fp);
+
+  //fprintf(stderr,"********************end************\n");
+  /*End*/
+}
 
 #endif
 
@@ -5994,9 +6019,6 @@ static void __kmp_internal_end(void) {
 }
 
 void __kmp_internal_end_library(int gtid_req) {
-  /*===========Add by haomeng===========*/
-  fprintf(stderr,"==================The number of tasks is %d\n",hm_task_count);
-  /*End*/
 
   /* if we have already cleaned up, don't try again, it wouldn't be pretty */
   /* this shouldn't be a race condition because __kmp_internal_end() is the

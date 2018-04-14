@@ -70,6 +70,8 @@
 #include <string.h>
 #include <vector>
 #include <time.h>
+//add by yiming
+#include<unistd.h>
 /* include <ctype.h> don't use; problems with /MD on Windows* OS NT due to bad
    Microsoft library. Some macros provided below to replace these functions  */
 #ifndef __ABSOFT_WIN
@@ -205,6 +207,18 @@ Values for bit flags used in the ident_t to describe the fields.
 #define KMP_IDENT_BARRIER_IMPL_SINGLE 0x0140
 #define KMP_IDENT_BARRIER_IMPL_WORKSHARE 0x01C0
 
+//add by yiming function RDTSC
+typedef  unsigned long long cycle_t;
+inline cycle_t rdtsc(void){
+   cycle_t trd;
+   asm volatile("rdtsc": "=A"(trd));
+   return trd;
+}
+inline cycle_t rdtsc2(void){
+   unsigned long hi=0,lo=0;
+   asm volatile("rdtsc":"=a"(lo),"=d"(hi));
+   return ((cycle_t)lo) | (((cycle_t)hi)<<32);
+}
 /*!
  * The ident structure that describes a source location.
  */
@@ -3000,7 +3014,8 @@ extern volatile kmp_uint32 __kmp_task_counter; // For Debugging Support Library
   (__kmp_debugging ? KMP_TEST_THEN_INC32((volatile kmp_int32 *)&counter) + 1   \
                    : ~0)
 #else
-#define _KMP_GEN_ID(counter) (~0)
+#define _KMP_GEN_ID(counter) \
+  (KMP_TEST_THEN_INC32((volatile kmp_int32 *)&counter) + 1) 
 #endif /* USE_DEBUGGER */
 
 #define KMP_GEN_TASK_ID() _KMP_GEN_ID(__kmp_task_counter)
@@ -3815,12 +3830,17 @@ KMP_EXPORT void KMPC_CONVENTION kmpc_set_disp_num_buffers(int);
 
 /*=================Add by haomeng==============*/
 extern int hm_task_count;// The number of created tasks
-
+extern int indexTask[1000];
+extern cycle_t baseTime;
+//extern std::vector<struct hm_task_time*> newTaskset;
+extern struct hm_task_time* newTaskset[1000][100000];
 struct hm_task_time{ 
-  kmp_int64 startTime; 
-  kmp_int64 endTime; 
+  unsigned long long  startTime; 
+  unsigned long long  endTime; 
+  unsigned long long  durTime;
   kmp_int64 threadId;
   kmp_int32 taskId;
+  long long index;
 };
 
 //extern std::vector<hm_task_time*> hm_task_times;

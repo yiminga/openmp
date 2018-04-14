@@ -62,6 +62,7 @@
 
 #include "tsan_annotations.h"
 
+cycle_t baseTime = 0;
 struct kmp_sys_timer {
   struct timespec start;
 };
@@ -119,6 +120,9 @@ void __kmp_affinity_bind_thread(int which) {
 void __kmp_affinity_determine_capable(const char *env_var) {
 // Check and see if the OS supports thread affinity.
 
+/*======================add by haomeng*/
+  baseTime = rdtsc2();
+/*======================End*/
 #define KMP_CPU_SET_SIZE_LIMIT (1024 * 1024)
 
   int gCode;

@@ -27,7 +27,11 @@
 
 /*====================Add by haomeng*/
 int hm_task_count = 0;
+int indexTask[1000];
+ /*=================Add by yiming*/
+//std::vector<struct hm_task_time*> newTaskset;
 //std::vector<struct hm_task_time*> hm_task_times(10,0);
+struct hm_task_time* newTaskset[1000][100000];
 /*====================End*/
 
 /* forward declaration */
@@ -1042,6 +1046,7 @@ kmp_task_t *__kmp_task_alloc(ident_t *loc_ref, kmp_int32 gtid,
   task->part_id = 0; // AC: Always start with 0 part id
 
   taskdata->td_task_id = KMP_GEN_TASK_ID();
+  //fprintf(stderr,"-----------------------------------------%llu\n",taskdata->td_task_id);
   taskdata->td_team = team;
   taskdata->td_alloc_thread = thread;
   taskdata->td_parent = parent_task;
@@ -1164,7 +1169,7 @@ kmp_task_t *__kmpc_omp_task_alloc(ident_t *loc_ref, kmp_int32 gtid,
 
   /*Add by haomeng*/
   hm_task_count++;
-  fprintf(stderr,"============Current task count is %d\n",hm_task_count);
+  //fprintf(stderr,"============Current task count is %d\n",hm_task_count);
 
   return retval;
 }
@@ -1178,6 +1183,7 @@ static void __kmp_invoke_task(kmp_int32 gtid, kmp_task_t *task,
                               kmp_taskdata_t *current_task) {
   kmp_taskdata_t *taskdata = KMP_TASK_TO_TASKDATA(task);
   kmp_uint64 cur_time;
+  struct hm_task_time newTask;
 #if OMP_40_ENABLED
   int discard = 0 /* false */;
 #endif
@@ -1297,18 +1303,28 @@ static void __kmp_invoke_task(kmp_int32 gtid, kmp_task_t *task,
 #endif /* KMP_GOMP_COMPAT */
     {
   /*=================Add by haomeng*/
-  clock_t cbegin = clock();
-  /*=================End*/
+  cycle_t cbegin=rdtsc2();
       (*(task->routine))(gtid, task);
-  /*=================Add by haomeng*/
-  clock_t cend = clock();
-  //struct hm_task_time newTask = {cbegin,cend,gtid,new_taskdata->td_task_id};
-  //hm_task_times.push_back(&newTask);
-  //fprintf(stderr,"===========%d, %d, %d, %d\n", newTask.startTime, newTask.endTime, newTask.threadId, newTask.taskId);
+  cycle_t cend=rdtsc2();
+  cycle_t dtime = cend - cbegin;
+
   kmp_taskdata_t *mytaskdata = KMP_TASK_TO_TASKDATA(task);
-  fprintf(stderr,"===========%d, %d, %d, %d\n", cbegin, cend, gtid, mytaskdata->td_task_id);
+  struct hm_task_time* newMyTask = (struct hm_task_time*)malloc(sizeof(struct hm_task_time));
+  newMyTask->startTime = cbegin;
+  newMyTask->endTime = cend;
+  newMyTask->durTime = dtime;
+  newMyTask->threadId = gtid;
+  newMyTask->taskId = mytaskdata->td_task_id;
+  newMyTask->index = indexTask[gtid];
+
+  newTaskset[gtid][indexTask[gtid]] = newMyTask;
+  //fprintf(stderr,"===========%llu, %llu, %llu, %llu, %llu, %llu\n", newMyTask->startTime, newMyTask->endTime,newMyTask->durTime,newMyTask->threadId, newMyTask->taskId,newMyTask->index);
+  indexTask[gtid]++;
   /*=================End*/
+
+
     }
+
     KMP_POP_PARTITIONED_TIMER();
 
 #if OMPT_SUPPORT && OMPT_TRACE

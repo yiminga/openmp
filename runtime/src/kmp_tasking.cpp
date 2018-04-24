@@ -25,7 +25,7 @@
 
 #include "tsan_annotations.h"
 
-/*====================Add by haomeng*/
+/*====================Add by ,%dhaomeng*/
 int hm_task_count = 0;
 int indexTask[MAX_THREADS];
  /*=================Add by yiming*/
@@ -1303,10 +1303,21 @@ static void __kmp_invoke_task(kmp_int32 gtid, kmp_task_t *task,
 #endif /* KMP_GOMP_COMPAT */
     {
   /*=================Add by haomeng*/
-  cycle_t cbegin=rdtsc2();
+  cycle_t timestart;
+  cycle_t timeend;
+  unsigned cpufreq;
+  timestart=rdtsc();
+  sleep(1);
+  timeend=rdtsc();
+  cpufreq=timeend-timestart;
+
+  cycle_t tstart=rdtsc2();
+  cycle_t cbegin=(cycle_t)tstart/cpufreq;
       (*(task->routine))(gtid, task);
-  cycle_t cend=rdtsc2();
-  cycle_t dtime = cend - cbegin;
+  cycle_t tend=rdtsc2();
+  cycle_t cend=(cycle_t)tend/cpufreq;
+  double dtime = cend - cbegin;
+
 
   kmp_taskdata_t *mytaskdata = KMP_TASK_TO_TASKDATA(task);
   struct hm_task_time* newMyTask = (struct hm_task_time*)malloc(sizeof(struct hm_task_time));
@@ -1316,9 +1327,8 @@ static void __kmp_invoke_task(kmp_int32 gtid, kmp_task_t *task,
   newMyTask->threadId = gtid;
   newMyTask->taskId = mytaskdata->td_task_id;
   newMyTask->index = indexTask[gtid];
-
   newTaskset[gtid][indexTask[gtid]] = newMyTask;
-  //fprintf(stderr,"===========%llu, %llu, %llu, %llu, %llu, %llu\n", newMyTask->startTime, newMyTask->endTime,newMyTask->durTime,newMyTask->threadId, newMyTask->taskId,newMyTask->index);
+  fprintf(stderr,"=====%llu, %llu, %llu, %llu, %llu, %llu=====\n", newMyTask->startTime, newMyTask->endTime,newMyTask->durTime,newMyTask->threadId, newMyTask->taskId,newMyTask->index);
   indexTask[gtid]++;
   /*=================End*/
 

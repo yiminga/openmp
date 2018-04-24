@@ -1,0 +1,2 @@
+/usr/local/lib/libomp.so
+/usr/local/include/omp.h

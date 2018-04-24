@@ -3837,7 +3837,7 @@ extern cycle_t baseTime;
 extern struct hm_task_time* newTaskset[MAX_THREADS][MAX_TASKS];
 extern int indexTask[MAX_THREADS];
 struct hm_task_time{ 
-  unsigned long long  startTime; 
+  unsigned long long   startTime; 
   unsigned long long  endTime; 
   unsigned long long  durTime;
   kmp_int64 threadId;

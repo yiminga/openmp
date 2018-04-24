@@ -5743,8 +5743,7 @@ void __kmp_internal_end_fini(void) { __kmp_internal_end_atexit();
 		struct hm_task_time* tmp =  newTaskset[i][j];
 		if(tmp != NULL)
 		{
-			//fprintf(stderr,"%lld, %lld, %lld, %lld, %lld, %lld\n", tmp->endTime - tmp->durTime, tmp->endTime, tmp->durTime,tmp->threadId, tmp->taskId,tmp->index);
-			fprintf(fp,"%lld, %lld, %lld, %lld, %lld, %lld\n", tmp->endTime - tmp->durTime - baseTime, tmp->endTime - baseTime, tmp->durTime,tmp->threadId, tmp->taskId,tmp->index);
+			fprintf(fp,"%llu, %llu, %llu, %llu, %llu, %llu\n", tmp->startTime, tmp->endTime, tmp->durTime,tmp->threadId, tmp->taskId,tmp->index);
 			free(tmp);
 		}
 	}

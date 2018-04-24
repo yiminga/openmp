@@ -2,21 +2,20 @@
 1.  在虚拟机里安装Ubuntu
 2.  在Ubuntu中安装相应的环境如下：    
 （1）安装clang编译器        
-sudo apt-get install clang-3.9        
-sudo apt-get install clang++-3.9    
+    sudo apt-get install clang-3.9        
+    sudo apt-get install clang++-3.9    
 （2）安装openmp运行时库       
 下载到源码目录openmp：       
-git clone https://github.com/yiminga/openmp.git        
+    git clone https://github.com/yiminga/openmp.git        
 进入目录，创建编译目录build:        
 cd openmp        
 mkdir build                
 进入build目录，编译安装 
-、、、
 cd build        
 cmake -DCMAKE_BUILD_TYPE=Debug -DLIBOMP_OMPT_TRACE=on ..       
 make        
 sudo make install   
-、、、
+
 3.  使用方法：    
 假设openmp程序为test.c(OpenMP程序)    
 编译源码    
